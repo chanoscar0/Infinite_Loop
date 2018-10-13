@@ -1,4 +1,4 @@
-import react, { Component } from 'react';
+import React, { Component } from 'react';
 
 import PostSection from './components/PostSection.jsx';
 import Signup from './components/Signup.jsx';
@@ -14,11 +14,50 @@ class App extends Component {
       role: '',
       loggedIn: false
     };
+    this.onSignupChangedHandler = this.onSignupChangedHandler.bind(this);
+    this.onSignupSubmitHandler = this.onSignupSubmitHandler.bind(this);
+    this.onSignupNameChangeHandler = this.onSignupNameChangeHandler.bind(this);
+    this.onLoginHandler = this.onLoginHandler.bind(this);
+  }
+  onSignupChangedHandler(event) {
+    const newState = Object.assign({}, this.state);
+    newState.role = event.currentTarget.value;
+    console.log(newState.role);
+    this.setState(newState);
+  }
+  onSignupNameChangeHandler(event) {
+    const newState = Object.assign({}, this.state);
+    newState.name = event.target.value;
+    console.log(newState.name);
+    this.setState(newState);
+  }
+  onSignupSubmitHandler() {
+    fetch('http://localhost:3000/createuser', {
+      method: "POST",
+      body: {
+        name: this.state.name,
+        role: this.state.role,
+    }})
+    .then(data => data.json())
+    .then(data => {
+      this.onLoginHandler();
+    })
+    .catch(err => {
+      console.log(err);
+    })
+  }
+  onLoginHandler() {
+    const newState = Object.assign({}, this.state);
+    newState.loggedIn = true;
+    this.setState(newState);
   }
   render() {
+    let render = [];
+    if(this.state.loggedIn) render.push(<PostSection/>);
     return(
       <div>
-        hello World!
+        <Signup onSignupSubmitHandler = {this.onSignupSubmitHandler} onSignupNameChangedHandler = {this.onSignupNameChangeHandler}onSignupChangedHandler = {this.onSignupChangedHandler} />
+        {render}
       </div>
     )
   }
